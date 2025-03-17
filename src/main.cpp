@@ -37,15 +37,9 @@ TODO: bug zeigt bücher mit preis 0 (unbekannt) an wenn nach 0.99 gesucht wird
 
 #include <iostream>
 #include <Windows.h>
-#include <filesystem>
 #include "../include/programSelect.h"
 
 int main() {
-    //filepath debug
-    auto path = std::filesystem::current_path();
-    std::cout << path << "\n";
-    system("pause");
-
     SetConsoleCP ( 1252 ) ;
     SetConsoleOutputCP ( 1252 ) ;
     if(!selectProgram()){

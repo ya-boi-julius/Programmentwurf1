@@ -69,7 +69,6 @@ bool PSfindBook(struct book& foundBook){
                     << "\nSagen Sie mir bitte den Titel, Autor, ISBN, Preis, oder das Erscheinungsdatum."
                     << "\nAllerdings bitte nur eins davon, und Ihre Eingabe muss genau mit den Daten\n auf dem Buch übereinstimmen!\n";
         std::string input;
-        std::cin.ignore();
         std::getline(std::cin, input);
         //nicht der effizienteste Weg die Bücher hier neu zu laden, aber muss erstmal reichen
         std::vector<struct book> books;
@@ -83,14 +82,26 @@ bool PSfindBook(struct book& foundBook){
         if (foundBooks.size()>0){
             std::cout << "Ich habe folgende Bücher gefunden, die zu Ihrer Beschreibung passen:\n";
             printBooks(foundBooks);
+            bool bookSelected = false;
             std::cout << "\nBitte wählen Sie anhand des Index eines dieser Bücher aus.\n";
-            int index;
-            std::cin.ignore();
-            std::cin >> input;
-            index = stoi(input);
-            std::vector<struct book>::iterator it = foundBooks.begin();
-            it += index - 1;
-            foundBook = *it;
+            while(!bookSelected){
+                try{
+                    int index;
+                    std::cin >> input;
+                    std::cin.ignore();
+                    index = stoi(input);
+                    std::vector<struct book>::iterator it = foundBooks.begin();
+                    if(index > foundBooks.size()){
+                        throw std::invalid_argument("");
+                    }
+                    it += index - 1;
+                    foundBook = *it;
+                    bookSelected = true;
+                }catch(std::invalid_argument ia){
+                    std::cout << "Das ist leider kein gültiger Index. Bitte versuchen Sie es erneut.\n";
+                }
+            }
+            
             std::cout << "\nAlles klar, " << foundBook.title << " von " << foundBook.author << ".\n";
             
             return true;
@@ -172,7 +183,7 @@ bool selectProgram(){
             std::vector<std::string>& programsRef = programs;
             drawMainMenu(programsRef);
             std::string input;
-            std::cin >> input;
+            std::getline(std::cin, input);
             int selection = std::stoi(input);
             switch (selection){
                 case 1:{
@@ -220,6 +231,8 @@ bool selectProgram(){
             }
         }catch(std::runtime_error re){
             std::cerr << re.what();
+        }catch(std::invalid_argument ia){
+            std::cerr << "ERROR WHILE GETTING MENU CHOICE\n";
         }
     }
     return true;

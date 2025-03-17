@@ -67,20 +67,23 @@ bool parseBook(std::vector<std::string> &line, struct book& thisBook){
                     {
                         //parsing crashes here for some reason
                         //it was the isbn being too long, now it's isbn being "unbekannt"
+                        thisBook.isbnString = *it;
                         if((*it)[0] < 48 || 57 < (*it)[0]){
-                            thisBook.isbn = 0;
+                            thisBook.isbn = -1;
                             break;
+                        }else{
+                            thisBook.isbn = std::stoll(*it);
                         }
-                    thisBook.isbn = std::stoll(*it);
                     }break;
                 case 4:
                     {
                     std::string tempstring;
                     //kleine Split-Funktion, notwendig, damit C++ die Zahl als Float erkennt.
                     //02:14 c != '.' hinzugef�gt, damit preise erhalten bleiben
+                    thisBook.priceString = *it;
                     for(char c : *it){
                         if((c < 48 || c > 57) && c != ',' && c != '.'){
-                            tempstring = "0";
+                            tempstring = "-1";
                             break;
                         }
                         if(c != ','){
@@ -105,7 +108,7 @@ bool parseBook(std::vector<std::string> &line, struct book& thisBook){
 
 //wandelt ein Buch in einen CSV kompatiblen String um, der in eine Datei geschrieben werden kann
 bool unparseBook(struct book &thisBook, std::string& line){
-    line = {thisBook.author + ";" + thisBook.yearString + "; \"\"\"" + thisBook.title + "\"\"\";" + std::to_string(thisBook.isbn) + ";" + std::to_string(thisBook.price)};
+    line = {"\"" + thisBook.author + "\";" + thisBook.yearString + "; \"\"\"" + thisBook.title + "\"\"\";" + std::to_string(thisBook.isbn) + ";" + std::to_string(thisBook.price)};
     return true;
 }
 

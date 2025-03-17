@@ -23,8 +23,8 @@ void printBooks(std::vector<struct book> books){
             << (*it).author << "\t"
             << (*it).title << "\t"
             << (*it).yearString << "\t"
-            << (*it).isbn << "\t"
-            << (*it).price << "\n"
+            << (*it).isbnString << "\t"
+            << (*it).priceString << "\n"
             ;
     }
 }
@@ -35,7 +35,7 @@ void drawMainMenu(std::vector<std::string>& menuItems){
     int index = 1;
     std::vector<std::string>::iterator it;
     clearScreen();
-    std::cout << "Willkommen in der Digital Bibliothek. Ich bin Julius, was kann ich für Sie tun?\nBitte wählen Sie ein Programm anhand seiner Nummer aus.\n\n";
+    std::cout << "Willkommen in der Digital Bibliothek. Ich bin Julius, was kann ich fï¿½r Sie tun?\nBitte wï¿½hlen Sie ein Programm anhand seiner Nummer aus.\n\n";
     for(it = menuItems.begin(); it != menuItems.end(); it++){
         std::cout << index << ": " << *it << "\n";
         index++;
@@ -44,7 +44,7 @@ void drawMainMenu(std::vector<std::string>& menuItems){
 
 //Nur eine kleine Abschiedsnachricht
 void exitMessage(){
-    std::cout << "Vielen Dank für Ihren Besuch. Bis bald.\n\nDrücken Sie \"Enter\" um das Programm zu verlassen\n";
+    std::cout << "Vielen Dank fï¿½r Ihren Besuch. Bis bald.\n\nDrï¿½cken Sie \"Enter\" um das Programm zu verlassen\n";
     std::string n;
     std::cin >> n;
 }
