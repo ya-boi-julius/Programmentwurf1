@@ -7,3 +7,4 @@ void printBooks(std::vector<struct book> books);
 void drawMainMenu(std::vector<std::string>& menuItems);
 void exitMessage();
 void clearScreen();
+void pauseForEnter();

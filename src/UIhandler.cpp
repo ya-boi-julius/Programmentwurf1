@@ -43,6 +43,13 @@ void drawMainMenu(std::vector<std::string>& menuItems){
     } 
 }
 
+//Wartet bis der User Enter gedrückt hat. als Funktion angelegt, da ich es relativ häufig benutze, damit der User Nachrichten lesen kann.
+void pauseForEnter(){
+    std::string n;
+    std::cout << "Drücken Sie Enter um zum Menü zurückzukehren.\n";
+    std::getline(std::cin, n);
+}
+
 //Nur eine kleine Abschiedsnachricht
 void exitMessage(){
     std::cout << "Vielen Dank für Ihren Besuch. Bis bald.\n\nDrücken Sie \"Enter\" um das Programm zu verlassen\n";

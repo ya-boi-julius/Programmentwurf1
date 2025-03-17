@@ -42,9 +42,5 @@ TODO: bug zeigt bücher mit preis 0 (unbekannt) an wenn nach 0.99 gesucht wird
 int main() {
     SetConsoleCP ( 1252 ) ;
     SetConsoleOutputCP ( 1252 ) ;
-    if(!selectProgram()){
-        return 0;
-    }else{
-        return 1;
-    }
+    selectProgram();
 }

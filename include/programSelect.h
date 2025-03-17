@@ -1,5 +1,4 @@
-#ifndef PROGRAMSELECT_H
-#define PROGRAMSELECT_H
+#pragma once
 #include <iostream>
 #include <vector>
 #include <string>
@@ -7,9 +6,8 @@
 #include "../include/book.h"
 #include "../include/saveLoadManager.h"
 
-bool PSaddBook();
-bool PSfindBook(struct book& foundBook);
-bool PSdeleteBook();
-bool PSloadOriginal();
-bool selectProgram();
-#endif
+std::exception* PSaddBook();
+std::exception* PSfindBook(struct book& foundBook);
+std::exception* PSdeleteBook();
+std::exception* PSloadOriginal();
+void selectProgram();

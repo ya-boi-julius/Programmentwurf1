@@ -9,39 +9,34 @@
 
 //Verwaltet das Laden und Parsen von Büchern aus einer Datei
 //falls in einer der nachgestellten Dateien ein Fehler auftritt gibt auch diese Datei false zurück
-bool loadBooks(std::vector<struct book>& books, std::string fileLocation){
+std::exception* loadBooks(std::vector<struct book>& books, std::string fileLocation){
     std::vector<std::string> lines;
     std::vector<std::string>& linesRef = lines;
     std::vector<std::string> lineSplit;
     std::vector<std::string> lineSplitRef = lineSplit;
 
     try{
-        if(!readFile(linesRef, fileLocation)){
-            throw std::runtime_error("ERROR WHILE READING FILE\n");
-        }
+        std::exception* err = readFile(linesRef, fileLocation);
+        if(err != nullptr){throw err;}
         std::vector<std::string>::iterator it;
-        //it + 1 aus bekannten Gründen
         for(it = lines.begin(); it != lines.end(); it ++){
-            if(!splitLine(*it, lineSplitRef, ';')){
-                throw std::runtime_error("ERROR WHILE SPLITTING LINE\n");
-            }
+            err = splitLine(*it, lineSplitRef, ';');
+            if(err != nullptr){throw err;}
             struct book newBook;
             struct book& newBookRef = newBook;
-            if(!parseBook(lineSplitRef, newBookRef)){
-                throw std::runtime_error("ERROR WHILE PARSING BOOK\n");
-            }
+            err = parseBook(lineSplitRef, newBookRef);
+            if(err != nullptr){throw err;}
             books.push_back(newBook);
         }
     }
-    catch(std::runtime_error re){
-        std::cerr << re.what();
-        return false;
+    catch(std::exception* re){
+        return re;
     }
-    return true;
+    return nullptr;
 }
 
 //speichert die Liste der Bücher in der angegebenen Datei
-bool saveBooks(std::vector<struct book>& books, std::string fileLocation){
+std::exception* saveBooks(std::vector<struct book>& books, std::string fileLocation){
     std::vector<std::string> lines;
     std::vector<std::string>& linesRef = lines;
     std::vector<struct book>::iterator it;
@@ -49,44 +44,47 @@ bool saveBooks(std::vector<struct book>& books, std::string fileLocation){
         for(it = books.begin(); it != books.end(); it++){
             std::string line;
             std::string& lineRef = line;
-            if(!unparseBook(*it, lineRef)){
-                throw std::runtime_error("ERROR WHILE UNPARSING BOOK\n");
-            }
+            std::exception* err = unparseBook(*it, lineRef);
+            if(err != nullptr){throw err;}
             lines.push_back(line);
         }
-        if(!writeFile(linesRef, fileLocation)){
-            throw std::runtime_error("UNABLE TO WRITE TO FILE\n");
-        }
-    }catch(std::runtime_error re){
-        std::cerr << re.what();
+        std::exception* err = writeFile(linesRef, fileLocation);
+        if(err != nullptr){throw err;}
+    }catch(std::runtime_error* re){
+        return re;
     }
-    return true;
+    return nullptr;
 }
 
 
 //Fügt das engegebene Buch der angegebenen Datei hinzu
-bool addBook(struct book& thisBook, std::string fileLocation){
+std::exception* addBook(struct book& thisBook, std::string fileLocation){
     try{
         std::string bookString;
         std::string& bookStringRef = bookString;
-        if(!unparseBook(thisBook, bookStringRef)){
-            throw std::runtime_error("UNABLE TO UNPARSE BOOK\n");
-        }
-        if(!appendFile(bookString, fileLocation)){
-            throw std::runtime_error("UNABLE TO APPEND FILE\n");
-        }
-    }catch(std::runtime_error re){
-        std::cerr << re.what();
+        std::exception* err =  unparseBook(thisBook, bookStringRef);
+        if(err != nullptr){throw err;}
+        err = appendFile(bookString, fileLocation);
+        if(err != nullptr){throw err;}
+    }catch(std::runtime_error* re){
+        return re;
     }
-    return true;
+    return nullptr;
 }
 
 
 //lädt die Bücher aus der angegebenen Datei, löscht das gesuchte Buch, und schreibt die aktuelisierte Liste zurück in die Datei
-bool removeBookSL(struct book& thisBook, std::string fileLocation){
+std::exception* removeBookSL(struct book& thisBook, std::string fileLocation){
     std::vector<struct book> books;
     std::vector<struct book> booksRef = books;
     try{
+        std::exception* err = loadBooks(booksRef, fileLocation);
+        if(err != nullptr){throw err;}
+        err = removeBook(booksRef, thisBook);
+        if(err != nullptr){throw err;}
+        err = saveBooks(booksRef, fileLocation);
+        if(err != nullptr){throw err;}
+        /*
         if(!loadBooks(booksRef, fileLocation)){
             throw std::runtime_error("ERROR WHILE LOADING BOOKS FOR DELETING\n");
         }
@@ -96,27 +94,27 @@ bool removeBookSL(struct book& thisBook, std::string fileLocation){
         if(!saveBooks(booksRef, fileLocation)){
             throw std::runtime_error("ERROR WHILE SAVING UPDATED FILE\n");
         }
-
-    }catch(std::runtime_error re){
-        std::cerr << re.what();
+        */
+    }catch(std::exception* re){
+        return re;
     }
-    return true;
+    return nullptr;
 }
 
-bool loadOrigin(std::string fileLocationOrigin, std::string fielLocationNew){
+std::exception* loadOrigin(std::string fileLocationOrigin, std::string fielLocationNew){
     try{
         std::vector<std::string> lines;
         std::vector<std::string>& linesRef = lines;
-        if(!readFile(linesRef, fileLocationOrigin)){
-            throw std::runtime_error("ERROR READING FILE");
-            return false;
+        std::exception* err = readFile(linesRef, fileLocationOrigin);
+        if(err != nullptr){
+            throw err;
         }
-        if(!writeFile(linesRef, fielLocationNew)){
-            throw std::runtime_error("ERROR WRITING TO FILE");
-            return false;
+        err = writeFile(linesRef, fielLocationNew);
+        if(err != nullptr){
+            throw err;
         }
-    }catch(std::runtime_error re){
-        std::cerr << re.what();
+    }catch(std::exception* re){
+        return re;
     }
-    return true;
+    return nullptr;
 }
