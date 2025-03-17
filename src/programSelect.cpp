@@ -103,17 +103,17 @@ std::exception* PSfindBook(struct book& foundBook, bool toDelete){
                 std::cout << "\nBitte wählen Sie anhand des Index eines dieser Bücher aus.\n";
                 while(!bookSelected){
                     try{
-                        int index;
+                        unsigned int index;
                         std::getline(std::cin, input);
-                        index = stoi(input);
+                        index = stoul(input);
                         std::vector<struct book>::iterator it = foundBooks.begin();
                         if(index > foundBooks.size()){
-                            throw new std::invalid_argument("");
+                            throw std::invalid_argument("");
                         }
                         it += index - 1;
                         foundBook = *it;
                         bookSelected = true;
-                    }catch(std::invalid_argument* ia){
+                    }catch(std::invalid_argument& ia){
                         std::cout << "Das ist leider kein gültiger Index. Bitte versuchen Sie es erneut.\n";
                     }
                 }
@@ -154,7 +154,7 @@ std::exception* PSloadOriginal(){
         std::cout << "\nIch werde nun versuchen, unsere Datenbank wieder auf den Originalzustand zu setzen.\n";
         std::exception* err = loadOrigin(fileLocationOriginal, fileLocation);
         if(err != nullptr){
-            throw new std::runtime_error("Etwas ist bei der Synchronisierung mit der Hauptdatenbank schiefgegangen. Es tut mir leid.");
+            throw new std::runtime_error("Etwas ist bei der Synchronisierung mit der Hauptdatenbank schiefgegangen. Es tut mir leid.\n");
         }
     }catch(std::runtime_error* err){
         return err;
