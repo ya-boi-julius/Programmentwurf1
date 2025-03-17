@@ -9,7 +9,7 @@
 
 
 //teilt eine Zeile entsprechend dem mitgegebenen Trennzeichen auf, und speichert diese im mitgegebenen Vektor
-//gibt true zurück wenn erfolgreich falls (noch) nicht implementiert
+//gibt true zurÃ¼ck wenn erfolgreich falls (noch) nicht implementiert
 //TODO: flase implementieren
 bool splitLine(std::string &line, std::vector<std::string> &lineSplit, char token){
     std::string linePart;
@@ -35,13 +35,13 @@ bool splitLine(std::string &line, std::vector<std::string> &lineSplit, char toke
     return true;
 }
 
-//erhält eine aufgeteilte Zeile und parsed diese in ein element des book-structs (mir ist noch keine bessere Methode zu verteilen eingefallen)
+//erhï¿½lt eine aufgeteilte Zeile und parsed diese in ein element des book-structs (mir ist noch keine bessere Methode zu verteilen eingefallen)
 //true falls erfolgreich, false falls nicht (falls ein vector mehr elemente hat als erwartet)
 bool parseBook(std::vector<std::string> &line, struct book& thisBook){
     std::vector<std::string>::iterator it;
     int index = 0;
     //it + 1 um erste Zeile mit Labels zu ignorieren
-    //muss ich wahrscheinlich an anderen stellen im code auch noch ändern
+    //muss ich wahrscheinlich an anderen stellen im code auch noch ï¿½ndern
     //timestamp: 23:32
     //23:54 relativ genervt von invalid arguments in der Liste, und ich glaube auch, dass wir die von stoi/stof geworfenen errors nich in der VL hatten
         for(it = line.begin(); it != line.end(); it++){
@@ -77,7 +77,7 @@ bool parseBook(std::vector<std::string> &line, struct book& thisBook){
                     {
                     std::string tempstring;
                     //kleine Split-Funktion, notwendig, damit C++ die Zahl als Float erkennt.
-                    //02:14 c != '.' hinzugefügt, damit preise erhalten bleiben
+                    //02:14 c != '.' hinzugefï¿½gt, damit preise erhalten bleiben
                     for(char c : *it){
                         if((c < 48 || c > 57) && c != ',' && c != '.'){
                             tempstring = "0";
@@ -110,7 +110,7 @@ bool unparseBook(struct book &thisBook, std::string& line){
 }
 
 //entfernt ein buch aus dem Vektor
-//gibt true zurück falls erfolgreich, false falls das buch nicht gefunden wurde
+//gibt true zurï¿½ck falls erfolgreich, false falls das buch nicht gefunden wurde
 bool removeBook(std::vector<struct book>& books, struct book &delBook){
     std::vector<struct book>::iterator it;
     //it + 1 um label Zeile zu ignorieren
@@ -130,7 +130,7 @@ bool removeBook(std::vector<struct book>& books, struct book &delBook){
     return false;
 }
 
-//gibt alle Bücher zurück, bei denen ein Feld dem Suchbegriff exakt entspricht. 
+//gibt alle Bï¿½cher zurï¿½ck, bei denen ein Feld dem Suchbegriff exakt entspricht. 
 //nicht mit "find" implementiert, da ich nicht weiÃŸ, wie man das mit structs anwendet
 bool findBook(std::vector<struct book> &books, std::vector<struct book> &resultBooks, std::string query){
     std::vector<struct book>::iterator it;
@@ -160,7 +160,7 @@ bool findBook(std::vector<struct book> &books, std::vector<struct book> &resultB
     return success;
 }
 
-//Hab gerade gemerkt, dass das sortieren der Bücher nicht gefordert ist, eventuell mache ich diese Funktion fertig wenn ich mit dem Rest des programmes Fertig bin.
+//Hab gerade gemerkt, dass das sortieren der Bï¿½cher nicht gefordert ist, eventuell mache ich diese Funktion fertig wenn ich mit dem Rest des programmes Fertig bin.
 /*
 void sortByAuthor(std::vector<struct book>& books, bool ascending, bool lastname){
     std::vector<struct book>::iterator it;
@@ -169,7 +169,7 @@ void sortByAuthor(std::vector<struct book>& books, bool ascending, bool lastname
     std::vector<std::string> &lineSplitRef1 = lineSplit1;
     std::vector<std::string> lineSplit2;
     std::vector<std::string> &lineSplitRef1 = lineSplit2;
-    //Bubble Sort. Ineffizient, aber eignet sich für den Vergleich zwischen Namen
+    //Bubble Sort. Ineffizient, aber eignet sich fï¿½r den Vergleich zwischen Namen
     for(it = books.begin(); it != books.end(); it++){
         if(lastname){
             splitLine((*it).author, lineSplit1, ' ');
