@@ -21,7 +21,7 @@ bool loadBooks(std::vector<struct book>& books, std::string fileLocation){
         }
         std::vector<std::string>::iterator it;
         //it + 1 aus bekannten Gründen
-        for(it = lines.begin() /*+ 1*/; it != lines.end(); it ++){
+        for(it = lines.begin(); it != lines.end(); it ++){
             if(!splitLine(*it, lineSplitRef, ';')){
                 throw std::runtime_error("ERROR WHILE SPLITTING LINE\n");
             }

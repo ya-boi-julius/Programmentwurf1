@@ -17,35 +17,29 @@ bool PSaddBook(){
         std::string input;
         struct book thisBook;
         struct book& thisBookRef = thisBook;
-        std::cin.ignore();
-        std::cout << "Ah, ich freue mich, dass Sie der Bibliothek ein Buch spenden möchten.\n"<<
+        std::cout << "Ah, ich freue mich, dass Sie der Bibliothek ein Buch spenden müchten.\n"<<
                     "Ich müsste nur zuerst ein paar Eckdaten abfragen. Wie lautet der Name des Buches?\n";
         std::getline(std::cin, input);
-        std::cin.ignore();
         thisBookRef.title = input;
         input.clear();
         clearScreen();
         std::cout << "Vielen Dank. Wer ist der Autor?\n";
         std::getline(std::cin, input);
-        std::cin.ignore();
         thisBookRef.author = input;
         input.clear();
         clearScreen();
         std::cout << "Und wissen Sie auch, wann das Buch erschienen ist?\nBitte geben Sie das Datum im Format dd.mm.yyyy an.\n";
         std::getline(std::cin, input);
-        std::cin.ignore();
         thisBookRef.yearString = input;
         input.clear();
         clearScreen();
-        std::cout << "Könnten Sie mir nun noch die ISBN sagen?\nSie finde sie meist auf der Rückseite, in der Nähe des Barcodes.\n";
+        std::cout << "Künnten Sie mir nun noch die ISBN sagen?\nSie finde sie meist auf der Rückseite, in der Nühe des Barcodes.\n";
         std::getline(std::cin, input);
-        std::cin.ignore();
         thisBookRef.isbn = stoll(input);
         input.clear();
         clearScreen();
-        std::cout << "Nun brächte ich nur noch den Preis.\nDen auf dem Buch bitte, nicht was Sie dafür gezahlt haben.\n";
+        std::cout << "Nun bräuchte ich nur noch den Preis.\nDen auf dem Buch bitte, nicht was Sie dafür gezahlt haben.\n";
         std::getline(std::cin, input);
-        std::cin.ignore();
         thisBookRef.price = stof(input);
         input.clear();
         if(!addBook(thisBookRef, fileLocation)){
@@ -56,6 +50,8 @@ bool PSaddBook(){
         std::cout << "Oh, entschuldigen Sie bitte, anscheinend gab es ein Problem beim anlegen Ihres Buches."
                     << "\nSind Sie sicher, dass Sie sich nicht vielleicht irgendwo vertippt haben?\nVersuchen Sie es bitte nocheinmal.\n\n";
         return false;
+    }catch(std::invalid_argument ia){
+        std::cout << "Leider ist etwas bei Ihrer Eingabe schiefgegangen, und das Buch konnte nicht angelegt werden.\n Bitte versuchen Sie es später nochmal.\n";
     }
     return true;
 }
@@ -76,7 +72,7 @@ bool PSfindBook(struct book& foundBook){
         loadBooks(booksRef, fileLocation);
         if(!findBook(booksRef, foundBooks, input)){
             //08.03.2025 00:07
-            //findBooks läuft endlich ohne crashes durch. wer weiß, was jetzt noch kommt
+            //findBooks lüuft endlich ohne crashes durch. wer weiü, was jetzt noch kommt
             throw std::runtime_error("\nEs tut mir leid, ich konnte leider kein Buch finden, das zu Ihrer Beschreibung passt.\n");
         }
         if (foundBooks.size()>0){
@@ -87,8 +83,7 @@ bool PSfindBook(struct book& foundBook){
             while(!bookSelected){
                 try{
                     int index;
-                    std::cin >> input;
-                    std::cin.ignore();
+                    std::getline(std::cin, input);
                     index = stoi(input);
                     std::vector<struct book>::iterator it = foundBooks.begin();
                     if(index > foundBooks.size()){
@@ -105,21 +100,19 @@ bool PSfindBook(struct book& foundBook){
             std::cout << "\nAlles klar, " << foundBook.title << " von " << foundBook.author << ".\n";
             
             return true;
-        }else{
-            std::cout << "\nLeider haben wir kein Buch in unserer Sammlung das Ihrer Suche entspricht.\n";
-
-            return false;
         }
 
     }catch(std::runtime_error re){
-        std::cout << re.what();
+        std::cout << "\nLeider haben wir kein Buch in unserer Sammlung das Ihrer Suche entspricht.\nDrücken Sie Enter um zum Menü zurück zu gelangen.\n";
+        std::string n;
+        std::getline(std::cin, n);
         return false;
     }
 }
 
 bool PSdeleteBook(){
     try{
-        std::cout << "Bitte wählen Sie aus, welches Buch Sie löschen möchten";
+        std::cout << "Bitte wühlen Sie aus, welches Buch Sie löschen müchten";
         struct book bookToDelete;
         struct book& bookToDeleteRef = bookToDelete;
         if(PSfindBook(bookToDeleteRef)){
@@ -166,7 +159,7 @@ std::runtime_error* PSallBooks(){
         printBooks(booksRef);
         std::string n;
         std::cout << "\nBeliebige Taste + Enter um zurück zum Hauptmenü zu gelangen\n";
-        std::cin >> n;
+        std::getline(std::cin, n);
     }catch(std::runtime_error re){
         std::runtime_error* err = &re;
         return err;
@@ -175,7 +168,7 @@ std::runtime_error* PSallBooks(){
 }
 
 //TODO: refactor functions to return errors instead of just bools
-//Wählt eins der Oben stehenden Programme aus. Widerholt sich, bis der User das Programm beenden möchte.
+//WÃ¤hlt eins der Oben stehenden Programme aus. Widerholt sich, bis der User das Programm beenden müchte.
 bool selectProgram(){
     bool exit = false;
     while(!exit){
@@ -202,7 +195,7 @@ bool selectProgram(){
                 case 3:{
                     clearScreen();
                     if(!PSdeleteBook()){
-                        throw std::runtime_error("\nEtwas ist beim löschen des Buches schiefgelaufen\n");
+                        throw std::runtime_error("\nEtwas ist beim lüschen des Buches schiefgelaufen\n");
                         break;
                     }
                 }break;
