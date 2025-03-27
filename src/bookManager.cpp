@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 #include "../include/book.h"
 #include "../include/bookManager.h"
 
@@ -57,10 +58,15 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                     }break;
                 case 1:
                     {
+                        //kann mit Zeiten vor 1902 nicht wirklich umgehen, da time_t zu klein wird.
                         thisBook.yearString = *it;
-                        struct std::tm timestamp = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+                        struct std::tm timestamp = {0, 0, 0, 1, 0, -1, 0, 0, -1};
                         std::istringstream tempstream(*it);
-                        tempstream >> std::get_time(&timestamp, "%d.%m.%Y" );
+                        if(thisBook.yearString.find('.') == std::string::npos){
+                            tempstream >> std::get_time(&timestamp, "%Y" );    
+                        }else{
+                            tempstream >> std::get_time(&timestamp, "%d.%m.%Y" );
+                        }
                         thisBook.timestamp = timestamp;
                         thisBook.time = std::mktime(&timestamp);
                     }break;
@@ -116,12 +122,14 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
 std::exception*  unparseBook(struct book &thisBook, std::string& line){
     try{
         long long isbn = std::stoll(thisBook.isbnString);
+        thisBook.isbnString = std::to_string(isbn);
     }catch(std::invalid_argument& ia){
         thisBook.isbnString = "Unbekannt";
         thisBook.isbn = -1;
     }
     try{
-        float isbn = std::stof(thisBook.priceString);
+        float price = std::stof(thisBook.priceString);
+        thisBook.priceString = std::to_string(price);
     }catch(std::invalid_argument& ia){
         thisBook.priceString = "Unbekannt";
         thisBook.price = -1;
@@ -213,3 +221,42 @@ void sortByAuthor(std::vector<struct book>& books, bool ascending, bool lastname
     }
 }
 */
+
+//TODO: Sortierung repariere, if else Blöcke überdenken.
+std::exception* sortByDate(std::vector<struct book> &books, bool ascending){
+    std::vector<struct book>::iterator it;
+    std::vector<struct book>::iterator it2;
+    try{
+        for(it = books.begin(); it != books.end(); it++){
+            for(it2 = it + 1; it2 != books.end(); it2++){
+                struct book temp;
+                if ((ascending == ((*it).time > (*it2).time)) && (((*it).time != -1) || (*it2).time != -1)){//sortiert Zeiten fall gültige Zeiteinträge vorhanden sind.
+                    temp = *it;
+                    *it = *it2;
+                    *it2 = temp;
+                }else if((*it).yearString == "Unbekannt"){
+                    temp = *it;
+                    *it = *it2;
+                    *it2 = temp;
+                }else if(((*it).time == -1 || (*it2).time == -1) && ((*it).yearString.find('.') == std::string::npos && (*it2).yearString.find('.') == std::string::npos)){ //behandelt Fälle in denen nur das Jahr vorhanden ist und keine gültige Zeit erstellt werden konnte.
+                    if(ascending == ((*it).timestamp.tm_year > (*it2).timestamp.tm_year)){
+                        temp = *it;
+                        *it = *it2;
+                        *it2 = temp;
+                    }
+                }else if((*it).yearString.find('.') != std::string::npos){//verschiebt Werte mit ungültigem Datumseinträgen mit Punkt an das Ende des Vektors.
+                    temp = *it;
+                    *it = *it2;
+                    *it2 = temp;
+                }else if((*it).time == -1){
+                    temp = *it;
+                    *it = *it2;
+                    *it2 = temp;
+                }
+            }
+        }
+    }catch(std::exception& err){
+        return new std::runtime_error("Leider ist beim sortieren der Bücher nach Erscheinungsdatum ein Fehler aufgetreten.\n");
+    }
+    return nullptr;
+}

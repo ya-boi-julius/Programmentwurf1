@@ -5,7 +5,8 @@
 #include "../include/book.h"
 #include "../include/saveLoadManager.h"
 
-std::vector<std::string> programs = {"Alle Bücher anzeigen", "Buch hinzufügen", "Buch löschen", "Buch suchen", "Originalbestand herstellen", "Bibliothek verlassen"};
+std::vector<std::string> programs = {"Alle Bücher anzeigen", "Buch hinzufügen", "Buch löschen", "Buch suchen", "Originalbestand herstellen", "Bücher sortieren", "Bibliothek verlassen"};
+std::vector<std::string> sortModes = {"Nach Datum", "Abbrechen"};
 std::string fileLocation = "resources/buchliste_current.csv";
 std::string fileLocationOriginal = "resources/buchliste_origin.csv";
 
@@ -180,6 +181,80 @@ std::exception* PSallBooks(){
     return nullptr;
 }
 
+std::exception* PSsortByDate(){
+    std::vector<struct book> books;
+    std::vector<struct book>& booksRef = books;
+    try{
+        clearScreen();
+        std::exception* err = loadBooks(booksRef, fileLocation);
+        if (err != nullptr){throw err;}
+        std::cout << "Möchten Sie die Bücher in aufsteigender oder absteigender Reihenfolge sortieren?\n"
+            <<"Für absteigend wählen Sie 1\nFür aufsteigend wählen Sie 2.\n";
+        bool valid = false;
+        std::string input;
+        int choice = 0;
+        while(!valid){    
+            std::getline(std::cin, input);
+            choice = std::stoi(input);
+            if(choice > 3 || choice < 1){
+                throw std::invalid_argument("");
+            }else if(choice == 3){
+                return nullptr;
+            }
+            valid = true; 
+        }
+        choice--;
+        err = sortByDate(booksRef, choice);
+        if (err != nullptr){throw err;}
+        err = saveBooks(booksRef, fileLocation);
+        if (err != nullptr){throw err;}
+    }catch(std::invalid_argument& ia){
+        std::cerr << "Diese Eingabe konnte leider nicht erkannt werden.\nVersuchen Sie es erneut, oder wählen Sie 3 um das sortieren zu beenden.\n";
+    }catch(std::exception* err){
+        return err;
+    }
+    return nullptr;
+}
+
+std::exception* PSsort(){
+    std::vector<std::string>::iterator it;
+    int index = 1;
+    clearScreen();
+    try{
+        for(it = sortModes.begin(); it != sortModes.end(); it++){
+            std::cout << index << ": " << *it << "\n";
+            index++;
+        }
+        std::string input;
+        bool valid = false;
+        int choice = 0;
+        while(!valid){
+            std::getline(std::cin, input);
+            choice = stoi(input) - 1;
+            if(choice < 0 || choice > sortModes.size()){
+                throw std::invalid_argument("");
+            }
+            valid = true;
+        }
+        switch(choice){
+            case 0:{
+                std::exception* err = PSsortByDate();
+                if (err != nullptr){throw err;}
+            }break;
+            case 1:{
+                return nullptr;
+            }
+        }
+        std::cout << "Sortieren erfolgreich beendet\n";
+        pauseForEnter();
+    }catch(std::invalid_argument& ia){
+        std::cout << "Das ist leider keine gültige Auswahl, bitte versuchen Sie es erneut.\n";
+    }catch(std::exception* err){
+        return err;
+    }
+    return nullptr;
+}
+
 //TODO: refactor functions to return errors instead of just bools
 //Wählt eins der Oben stehenden Programme aus. Widerholt sich, bis der User das Programm beenden müchte.
 void selectProgram(){
@@ -227,10 +302,13 @@ void selectProgram(){
                     std::exception* err = PSloadOriginal();
                     if(err != nullptr){
                         throw err;
-                        break;
                     }
                 }break;
                 case 6:{
+                    std::exception* err = PSsort();
+                    if (err != nullptr){throw err;}
+                }break;
+                case 7:{
                     clearScreen();
                     exitMessage();
                     exit = true;

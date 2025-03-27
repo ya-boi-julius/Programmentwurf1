@@ -12,3 +12,4 @@ std::exception* parseBook(std::vector<std::string>& line, struct book& thisBook)
 std::exception* unparseBook(struct book& thisBook, std::string& line);
 std::exception* removeBook(std::vector<struct book>& books, struct book& delBook);
 std::exception* findBook(std::vector<struct book> &books, std::vector<struct book> &resultBooks, std::string query);
+std::exception* sortByDate(std::vector<struct book> &books, bool ascending);
