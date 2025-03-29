@@ -202,25 +202,37 @@ std::exception* findBook(std::vector<struct book> &books, std::vector<struct boo
     return nullptr;
 }
 
-//Hab gerade gemerkt, dass das sortieren der Bücher nicht gefordert ist, eventuell mache ich diese Funktion fertig wenn ich mit dem Rest des programmes Fertig bin.
-/*
-void sortByAuthor(std::vector<struct book>& books, bool ascending, bool lastname){
+//Durch die verschiedenen Arten von Einträgen, die im Autoren-Feld stehen können,
+//scheint mir das sortieren nach Nachnamen nur mit größerem Aufwand möglich zu sein. 
+//Deswegen hab ich es erstmal nicht gemacht.
+std::exception* sortByAuthor(std::vector<struct book>& books, bool ascending){
     std::vector<struct book>::iterator it;
     std::vector<struct book>::iterator it2;
-    std::vector<std::string> lineSplit1;
-    std::vector<std::string> &lineSplitRef1 = lineSplit1;
-    std::vector<std::string> lineSplit2;
-    std::vector<std::string> &lineSplitRef1 = lineSplit2;
     //Bubble Sort. Ineffizient, aber eignet sich für den Vergleich zwischen Namen
-    for(it = books.begin(); it != books.end(); it++){
-        if(lastname){
-            splitLine((*it).author, lineSplit1, ' ');
-        }
-        
-    
+    try {
+        for(it = (books.begin() + 1); it != books.end(); it++){
+            for(it2 = (it + 1); it2 != books.end(); it2++){
+                for (int i = 0; (i  < (*it).author.length()) && (i < (*it2).author.length()); i++){
+                    if((*it).author[i] != (*it2).author[i]){
+                        if(ascending == (std::tolower((*it).author[i]) < std::tolower((*it2).author[i]))){
+                            struct book temp = *it;
+                            *it = *it2;
+                            *it2 = temp;
+                            break;
+                        }else if(ascending == (std::tolower((*it).author[i]) > std::tolower((*it2).author[i]))){
+                            break;
+                        }
+                    }
+                }
+            }
+        }  
+        //ACHTUNG TODO: Rückgabe tatsächlich implementieren
+        return nullptr;
+    }catch(std::exception* err){
+        return err;
     }
 }
-*/
+
 
 //TODO: Sortierung repariere, if else Blöcke überdenken.
 std::exception* sortByDate(std::vector<struct book> &books, bool ascending){

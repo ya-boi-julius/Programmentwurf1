@@ -4,9 +4,10 @@
 #include "../include/UIhandler.h"
 #include "../include/book.h"
 #include "../include/saveLoadManager.h"
+#include "../include/bookManager.h"
 
 std::vector<std::string> programs = {"Alle Bücher anzeigen", "Buch hinzufügen", "Buch löschen", "Buch suchen", "Originalbestand herstellen", "Bücher sortieren", "Bibliothek verlassen"};
-std::vector<std::string> sortModes = {"Nach Datum", "Abbrechen"};
+std::vector<std::string> sortModes = {"Nach Datum (aktuell fehlerbehaftet)", "Nach Autor", "Abbrechen"};
 std::string fileLocation = "resources/buchliste_current.csv";
 std::string fileLocationOriginal = "resources/buchliste_origin.csv";
 
@@ -216,6 +217,41 @@ std::exception* PSsortByDate(){
     return nullptr;
 }
 
+std::exception* PSsortByAuthor(){
+    std::vector<struct book> books;
+    std::vector<struct book>& booksRef = books;
+    try{
+        clearScreen();
+        std::exception* err = loadBooks(booksRef, fileLocation);
+        if (err != nullptr){throw err;}
+        std::cout << "Möchten Sie die Bücher in aufsteigender oder absteigender Reihenfolge sortieren?\n"
+            <<"Für A-Z wählen Sie 1\nFür Z-A wählen Sie 2.\n";
+        bool valid = false;
+        std::string input;
+        int choice = 0;
+        while(!valid){    
+            std::getline(std::cin, input);
+            choice = std::stoi(input);
+            if(choice > 3 || choice < 1){
+                throw std::invalid_argument("");
+            }else if(choice == 3){
+                return nullptr;
+            }
+            valid = true; 
+        }
+        choice--;
+        err = sortByAuthor(booksRef, choice);
+        if (err != nullptr){throw err;}
+        err = saveBooks(booksRef, fileLocation);
+        if (err != nullptr){throw err;}
+    }catch(std::invalid_argument& ia){
+        std::cerr << "Diese Eingabe konnte leider nicht erkannt werden.\nVersuchen Sie es erneut, oder wählen Sie 3 um das sortieren zu beenden.\n";
+    }catch(std::exception* err){
+        return err;
+    }
+    return nullptr;
+}
+
 std::exception* PSsort(){
     std::vector<std::string>::iterator it;
     int index = 1;
@@ -242,6 +278,12 @@ std::exception* PSsort(){
                 if (err != nullptr){throw err;}
             }break;
             case 1:{
+                std::exception*err = PSsortByAuthor();
+                if (err != nullptr){throw err;}
+            }break;
+            case 2:{
+                return nullptr;
+            }default:{
                 return nullptr;
             }
         }
@@ -255,7 +297,6 @@ std::exception* PSsort(){
     return nullptr;
 }
 
-//TODO: refactor functions to return errors instead of just bools
 //Wählt eins der Oben stehenden Programme aus. Widerholt sich, bis der User das Programm beenden müchte.
 void selectProgram(){
     bool exit = false;
