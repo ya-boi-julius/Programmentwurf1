@@ -19,7 +19,7 @@ std::exception* loadBooks(std::vector<struct book>& books, std::string fileLocat
         std::exception* err = readFile(linesRef, fileLocation);
         if(err != nullptr){throw err;}
         std::vector<std::string>::iterator it;
-        for(it = lines.begin(); it != lines.end(); it ++){
+        for(it = lines.begin() + 1; it != lines.end(); it ++){
             err = splitLine(*it, lineSplitRef, ';');
             if(err != nullptr){throw err;}
             struct book newBook;

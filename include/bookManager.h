@@ -15,3 +15,4 @@ std::exception* findBook(std::vector<struct book> &books, std::vector<struct boo
 std::exception* findBook(std::vector<struct book>& books);
 std::exception* sortByDate(std::vector<struct book> &books, bool ascending);
 std::exception* sortByAuthor(std::vector<struct book>& books, bool ascending);
+std::exception* sortByTitle(std::vector<struct book>& books, bool ascending);

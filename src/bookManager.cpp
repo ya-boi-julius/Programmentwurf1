@@ -60,15 +60,19 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                     {
                         //kann mit Zeiten vor 1902 nicht wirklich umgehen, da time_t zu klein wird.
                         thisBook.yearString = *it;
-                        struct std::tm timestamp = {0, 0, 0, 1, 0, -1, 0, 0, -1};
+                        struct std::tm timestamp = {0, 0, 0, 1, 0, 0, -1, -1, -1};
                         std::istringstream tempstream(*it);
-                        if(thisBook.yearString.find('.') == std::string::npos){
-                            tempstream >> std::get_time(&timestamp, "%Y" );    
-                        }else{
-                            tempstream >> std::get_time(&timestamp, "%d.%m.%Y" );
+                        if(std::count(thisBook.yearString.begin(), thisBook.yearString.end(), '.') == 2){
+                            tempstream >> std::get_time(&timestamp, "%d.%m.%Y" );    
+                        }else if(thisBook.yearString.length() == 4){
+                            tempstream >> std::get_time(&timestamp, "%Y" );
                         }
                         thisBook.timestamp = timestamp;
                         thisBook.time = std::mktime(&timestamp);
+                        if((thisBook.time == -1) && (thisBook.timestamp.tm_year != 0) && (thisBook.yearString.length() > 4)){//Dies verursacht theoretisch ein Falsch positives ergebnis wenn das Buch 1 sekunde vor 1900 veröffentlicht
+                            //wurde, das sollte aber kein Problem sein
+                            thisBook.yearString = "Unbekannt";
+                        }
                     }break;
                 case 2:
                     {
@@ -76,11 +80,10 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                     }break;
                 case 3:
                     {
-                        //parsing crashes here for some reason
-                        //it was the isbn being too long, now it's isbn being "unbekannt"
                         thisBook.isbnString = *it;
                         if((*it)[0] < 48 || 57 < (*it)[0]){
                             thisBook.isbn = -1;
+                            thisBook.isbnString = "Unbekannt";
                             break;
                         }else{
                             thisBook.isbn = std::stoll(*it);
@@ -100,7 +103,7 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                         if(c != ','){
                             tempstring += c;
                         }else{
-                            tempstring += '.';
+                            tempstring += ',';
                         }
                     }
                     thisBook.price = std::stof(tempstring);
@@ -121,19 +124,18 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
 //wandelt ein Buch in einen CSV kompatiblen String um, der in eine Datei geschrieben werden kann
 std::exception*  unparseBook(struct book &thisBook, std::string& line){
     try{
-        long long isbn = std::stoll(thisBook.isbnString);
-        thisBook.isbnString = std::to_string(isbn);
+        std::stoll(thisBook.isbnString);
     }catch(std::invalid_argument& ia){
         thisBook.isbnString = "Unbekannt";
         thisBook.isbn = -1;
     }
     try{
-        float price = std::stof(thisBook.priceString);
-        thisBook.priceString = std::to_string(price);
+        std::stof(thisBook.priceString);
     }catch(std::invalid_argument& ia){
         thisBook.priceString = "Unbekannt";
         thisBook.price = -1;
     }
+
     try{
     line = {"\"" + thisBook.author + "\";" + thisBook.yearString + "; \"\"\"" + thisBook.title + "\"\"\";" + thisBook.isbnString + ";" + thisBook.priceString};
     return nullptr;
@@ -226,7 +228,34 @@ std::exception* sortByAuthor(std::vector<struct book>& books, bool ascending){
                 }
             }
         }  
-        //ACHTUNG TODO: Rückgabe tatsächlich implementieren
+        return nullptr;
+    }catch(std::exception* err){
+        return err;
+    }
+}
+
+//quasi exakt wie sortByAuthor, nur eben auf dem title Feld
+std::exception* sortByTitle(std::vector<struct book>& books, bool ascending){
+    std::vector<struct book>::iterator it;
+    std::vector<struct book>::iterator it2;
+    //Bubble Sort. Ineffizient, aber eignet sich für den Vergleich zwischen Namen
+    try {
+        for(it = (books.begin() + 1); it != books.end(); it++){
+            for(it2 = (it + 1); it2 != books.end(); it2++){
+                for (int i = 0; (i  < (*it).title.length()) && (i < (*it2).title.length()); i++){
+                    if(std::tolower((*it).title[i]) != std::tolower((*it2).title[i])){
+                        if(ascending == (std::tolower((*it).title[i]) < std::tolower((*it2).title[i]))){
+                            struct book temp = *it;
+                            *it = *it2;
+                            *it2 = temp;
+                            break;
+                        }else if(ascending == (std::tolower((*it).title[i]) > std::tolower((*it2).title[i]))){
+                            break;
+                        }
+                    }
+                }
+            }
+        }  
         return nullptr;
     }catch(std::exception* err){
         return err;
@@ -239,31 +268,21 @@ std::exception* sortByDate(std::vector<struct book> &books, bool ascending){
     std::vector<struct book>::iterator it;
     std::vector<struct book>::iterator it2;
     try{
-        for(it = books.begin(); it != books.end(); it++){
-            for(it2 = it + 1; it2 != books.end(); it2++){
+        for(it = (books.begin() + 1); it != books.end(); it++){
+            for(it2 = (it + 1); it2 != books.end(); it2++){
                 struct book temp;
-                if ((ascending == ((*it).time > (*it2).time)) && (((*it).time != -1) || (*it2).time != -1)){//sortiert Zeiten fall gültige Zeiteinträge vorhanden sind.
+                if (ascending == ((*it).time > (*it2).time)){//sortiert Zeiten fall gültige Zeiteinträge vorhanden sind.
                     temp = *it;
                     *it = *it2;
                     *it2 = temp;
-                }else if((*it).yearString == "Unbekannt"){
-                    temp = *it;
-                    *it = *it2;
-                    *it2 = temp;
-                }else if(((*it).time == -1 || (*it2).time == -1) && ((*it).yearString.find('.') == std::string::npos && (*it2).yearString.find('.') == std::string::npos)){ //behandelt Fälle in denen nur das Jahr vorhanden ist und keine gültige Zeit erstellt werden konnte.
-                    if(ascending == ((*it).timestamp.tm_year > (*it2).timestamp.tm_year)){
+                }
+                if((*it).time == -1 && (*it2).time == -1 && (*it).yearString.length() == 4 && (*it2).yearString.length() == 4 ){
+                    //Falls beide Zeiten keinen gültigen Zeiteintrag haben, jedoch eine Jahreszahl
+                    if (ascending == ((*it).timestamp.tm_year > (*it2).timestamp.tm_year)){
                         temp = *it;
                         *it = *it2;
                         *it2 = temp;
                     }
-                }else if((*it).yearString.find('.') != std::string::npos){//verschiebt Werte mit ungültigem Datumseinträgen mit Punkt an das Ende des Vektors.
-                    temp = *it;
-                    *it = *it2;
-                    *it2 = temp;
-                }else if((*it).time == -1){
-                    temp = *it;
-                    *it = *it2;
-                    *it2 = temp;
                 }
             }
         }

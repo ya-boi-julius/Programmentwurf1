@@ -7,7 +7,7 @@
 #include "../include/bookManager.h"
 
 std::vector<std::string> programs = {"Alle Bücher anzeigen", "Buch hinzufügen", "Buch löschen", "Buch suchen", "Originalbestand herstellen", "Bücher sortieren", "Bibliothek verlassen"};
-std::vector<std::string> sortModes = {"Nach Datum (aktuell fehlerbehaftet)", "Nach Autor", "Abbrechen"};
+std::vector<std::string> sortModes = {"Nach Datum (aktuell fehlerbehaftet)", "Nach Autor", "Nach Titel", "Abbrechen"};
 std::string fileLocation = "resources/buchliste_current.csv";
 std::string fileLocationOriginal = "resources/buchliste_origin.csv";
 
@@ -190,7 +190,7 @@ std::exception* PSsortByDate(){
         std::exception* err = loadBooks(booksRef, fileLocation);
         if (err != nullptr){throw err;}
         std::cout << "Möchten Sie die Bücher in aufsteigender oder absteigender Reihenfolge sortieren?\n"
-            <<"Für absteigend wählen Sie 1\nFür aufsteigend wählen Sie 2.\n";
+            <<"Für Neu-Alt wählen Sie 1\nFür Alt-Neu wählen Sie 2.\n";
         bool valid = false;
         std::string input;
         int choice = 0;
@@ -217,7 +217,7 @@ std::exception* PSsortByDate(){
     return nullptr;
 }
 
-std::exception* PSsortByAuthor(){
+std::exception* PSsortByString(int mode){
     std::vector<struct book> books;
     std::vector<struct book>& booksRef = books;
     try{
@@ -240,7 +240,18 @@ std::exception* PSsortByAuthor(){
             valid = true; 
         }
         choice--;
-        err = sortByAuthor(booksRef, choice);
+        switch(mode){
+            case 0:{
+                err = sortByAuthor(booksRef, choice);
+            }break;
+            case 1:{
+                err = sortByTitle(booksRef, choice);
+            }break;
+            default: {
+                throw new std::invalid_argument("Etwas ist bei der Auswahl des Sortiermodus fehlgeschlagen.\n");
+            }
+        }
+        
         if (err != nullptr){throw err;}
         err = saveBooks(booksRef, fileLocation);
         if (err != nullptr){throw err;}
@@ -278,11 +289,12 @@ std::exception* PSsort(){
                 if (err != nullptr){throw err;}
             }break;
             case 1:{
-                std::exception*err = PSsortByAuthor();
+                std::exception* err = PSsortByString(0); //sort by author
                 if (err != nullptr){throw err;}
             }break;
             case 2:{
-                return nullptr;
+                std::exception* err = PSsortByString(1); //sort by title
+                if (err != nullptr){throw err;}
             }default:{
                 return nullptr;
             }
