@@ -3,13 +3,14 @@
 #include "../include/book.h"
 
 //leert die Konsole
-//TODO: Funktion finden Die tats√§chlich funktioniert.
+//TODO: Funktion finden Die tats‰chlich funktioniert.
 void clearScreen(){
     std::cout << "\x1B[2J\x1B[H";
-    system("cls");
+    system("cls"); //cls eingebaut, da der andere Befehl soweit ich weiﬂ nur in der Konsole in Visual Studio funtioniert,
+    // aber nicht in der Windows Konsole
 }
 
-//druckt alle B√ºcher aus dem Vektor auf die Konsole.
+//druckt alle B‹cher aus dem Vektor auf die Konsole.
 //Die Reihenfolge entspricht nicht der Reihenfolge der Daten in der Datei,
 //sondern einer Reihenfolge dich ich persˆnlich intuitiver finde.
 void printBooks(std::vector<struct book> books){

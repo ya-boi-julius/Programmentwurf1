@@ -364,6 +364,7 @@ std::exception* PSstartup(){
 
 //Wählt eins der Oben stehenden Programme aus. Widerholt sich, bis der User das Programm beenden müchte.
 void selectProgram(){
+    pauseForEnter();
     bool exit = false;
     std::exception* err = PSstartup();
     if(err != nullptr){

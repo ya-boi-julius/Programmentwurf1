@@ -10,8 +10,6 @@
 
 
 //teilt eine Zeile entsprechend dem mitgegebenen Trennzeichen auf, und speichert diese im mitgegebenen Vektor
-//gibt true zurük wenn erfolgreich falls (noch) nicht implementiert
-//TODO: flase implementieren
 std::exception* splitLine(std::string &line, std::vector<std::string> &lineSplit, char token){
     try{
         std::string linePart;
