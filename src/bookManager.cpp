@@ -58,7 +58,8 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                     }break;
                 case 1:
                     {
-                        //kann mit Zeiten vor 1902 nicht wirklich umgehen, da time_t zu klein wird.
+                        //timestamp wird initialisiert, falls ein vollständiges Datum vorhanden ist wird diese geparsed, ansonsten nur eine Jahreszahl
+                        //also was weder Datum noch Jahreszahl ist wird auf Unbekannt gesetzt.
                         thisBook.yearString = *it;
                         struct std::tm timestamp = {0, 0, 0, 1, 0, 0, -1, -1, -1};
                         std::istringstream tempstream(*it);
@@ -78,6 +79,8 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                     }break;
                 case 3:
                     {
+                        //Überprüfung ob die ISBN auch wirklich eine Zahl ist (bzw mit einer Zahl beginnt.)
+                        //wird ansonsten auf Unbekannt gesetzt
                         thisBook.isbnString = *it;
                         if((*it)[0] < 48 || 57 < (*it)[0]){
                             thisBook.isbn = -1;

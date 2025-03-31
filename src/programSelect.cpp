@@ -6,10 +6,15 @@
 #include "../include/saveLoadManager.h"
 #include "../include/bookManager.h"
 
-std::vector<std::string> programs = {"Alle Bücher anzeigen", "Buch hinzufügen", "Buch löschen", "Buch suchen", "Originalbestand herstellen", "Bücher sortieren", "Bibliothek verlassen"};
+std::vector<std::string> programs = {"Alle Bücher anzeigen", "Buch hinzufügen", "Buch löschen", "Buch suchen", "Originalbestand herstellen", "Bücher sortieren", "Buchliste neu laden", "Buchliste speichern", "Bibliothek verlassen"};
 std::vector<std::string> sortModes = {"Nach Datum (aktuell fehlerbehaftet)", "Nach Autor", "Nach Titel", "Abbrechen"};
 std::string fileLocation = "resources/buchliste_current.csv";
+std::string fileLocationAlt = "../resources/buchliste_current.csv";
 std::string fileLocationOriginal = "resources/buchliste_origin.csv";
+std::string fileLocationOriginalAlt = "../resources/buchliste_origin.csv";
+//Beide werden hier oben initialisiert, damit sie nicht für jede Operation neu geladen werden müssen.
+std::vector<struct book> books;
+std::vector<struct book>& booksRef = books;
 
 //Fragt den Nutzer nacheinander die Daten eines Buches ab.
 //Gibt true zurück wenn alles funktioniert hat, falls ein Fehler auftritt wird das Programm abgebrochen und false zurückgegeben.
@@ -60,12 +65,7 @@ std::exception* PSaddBook(){
         }
         thisBookRef.priceString = input;
         input.clear();
-        std::exception* err = addBook(thisBookRef, fileLocation);
-        if(err != nullptr){
-            throw new std::runtime_error("Oh, entschuldigen Sie bitte, anscheinend gab es ein Problem beim anlegen Ihres Buches."
-                    "\nSind Sie sicher, dass Sie sich nicht vielleicht irgendwo vertippt haben?\n"
-                    "Versuchen Sie es bitte nocheinmal.\n\n");
-        }
+        booksRef.push_back(thisBookRef);
         std::cout << "Vielen Dank, das war es auch schon.\n"
             << "Ich werde Ihr Buch so schnell wie möglich in unserer Datenbank anlegen.\n"
             << "Kann ich sonst noch etwas für Sie tun?\n";
@@ -87,11 +87,7 @@ std::exception* PSfindBook(struct book& foundBook, bool toDelete){
         std::string input;
         std::getline(std::cin, input);
         //nicht der effizienteste Weg die Bücher hier neu zu laden, aber muss erstmal reichen
-        std::vector<struct book> books;
-        std::vector<struct book>& booksRef = books;
-        std::exception* err = loadBooks(booksRef, fileLocation);
-        if(err != nullptr){throw err;}
-        err = findBook(booksRef, foundBooks, input);
+        std::exception* err = findBook(booksRef, foundBooks, input);
         if(err != nullptr){
             throw err;
         }
@@ -135,10 +131,6 @@ std::exception* PSdeleteBook(){
         struct book& bookToDeleteRef = bookToDelete;
         std::exception* err = PSfindBook(bookToDeleteRef, true);
         if(err != nullptr){throw err;}
-        std::vector<struct book> books;
-        std::vector<struct book>& booksRef = books;
-        err = loadBooks(booksRef, fileLocation);
-        if(err != nullptr){throw err;}
         err = removeBook(booksRef, bookToDeleteRef);
         if(err != nullptr){throw err;}
         err = saveBooks(booksRef, fileLocation);
@@ -151,29 +143,8 @@ std::exception* PSdeleteBook(){
     return nullptr;
 }
 
-std::exception* PSloadOriginal(){
-    try{
-        std::cout << "\nIch werde nun versuchen, unsere Datenbank wieder auf den Originalzustand zu setzen.\n";
-        std::exception* err = loadOrigin(fileLocationOriginal, fileLocation);
-        if(err != nullptr){
-            throw new std::runtime_error("Etwas ist bei der Synchronisierung mit der Hauptdatenbank schiefgegangen. Es tut mir leid.\n");
-        }
-    }catch(std::runtime_error* err){
-        return err;
-    }
-    std::cout << "Die Bücher wurden mit der Hauptdatenbank synchronisiert.\n";
-    pauseForEnter();
-    return nullptr;
-}
-
 std::exception* PSallBooks(){
-    std::vector<struct book> books;
-    std::vector<struct book>& booksRef = books;
     try{
-        std::exception* err = loadBooks(booksRef, fileLocation);
-            if(err != nullptr){
-                throw new std::runtime_error("Ich war leider nicht in der Lage die Bücher zu laden, überprüfen Sie bitte, ob die lokale Buchliste angelegt wurde.\n");
-            }
         printBooks(booksRef);
         pauseForEnter();
     }catch(std::exception* re){
@@ -183,12 +154,8 @@ std::exception* PSallBooks(){
 }
 
 std::exception* PSsortByDate(){
-    std::vector<struct book> books;
-    std::vector<struct book>& booksRef = books;
     try{
         clearScreen();
-        std::exception* err = loadBooks(booksRef, fileLocation);
-        if (err != nullptr){throw err;}
         std::cout << "Möchten Sie die Bücher in aufsteigender oder absteigender Reihenfolge sortieren?\n"
             <<"Für Neu-Alt wählen Sie 1\nFür Alt-Neu wählen Sie 2.\n";
         bool valid = false;
@@ -205,7 +172,7 @@ std::exception* PSsortByDate(){
             valid = true; 
         }
         choice--;
-        err = sortByDate(booksRef, choice);
+        std::exception* err = sortByDate(booksRef, choice);
         if (err != nullptr){throw err;}
         err = saveBooks(booksRef, fileLocation);
         if (err != nullptr){throw err;}
@@ -218,12 +185,8 @@ std::exception* PSsortByDate(){
 }
 
 std::exception* PSsortByString(int mode){
-    std::vector<struct book> books;
-    std::vector<struct book>& booksRef = books;
     try{
         clearScreen();
-        std::exception* err = loadBooks(booksRef, fileLocation);
-        if (err != nullptr){throw err;}
         std::cout << "Möchten Sie die Bücher in aufsteigender oder absteigender Reihenfolge sortieren?\n"
             <<"Für A-Z wählen Sie 1\nFür Z-A wählen Sie 2.\n";
         bool valid = false;
@@ -239,6 +202,7 @@ std::exception* PSsortByString(int mode){
             }
             valid = true; 
         }
+        std::exception* err;
         choice--;
         switch(mode){
             case 0:{
@@ -252,8 +216,6 @@ std::exception* PSsortByString(int mode){
             }
         }
         
-        if (err != nullptr){throw err;}
-        err = saveBooks(booksRef, fileLocation);
         if (err != nullptr){throw err;}
     }catch(std::invalid_argument& ia){
         std::cerr << "Diese Eingabe konnte leider nicht erkannt werden.\nVersuchen Sie es erneut, oder wählen Sie 3 um das sortieren zu beenden.\n";
@@ -295,7 +257,8 @@ std::exception* PSsort(){
             case 2:{
                 std::exception* err = PSsortByString(1); //sort by title
                 if (err != nullptr){throw err;}
-            }default:{
+            }break;
+            default:{
                 return nullptr;
             }
         }
@@ -309,15 +272,111 @@ std::exception* PSsort(){
     return nullptr;
 }
 
+std::exception* PSloadBooks(){
+    try{
+        booksRef.clear();
+        std::exception* err = loadBooks(booksRef, fileLocation);
+        if(err != nullptr){throw err;}
+    }catch(std::exception* err){
+        return err;
+    }
+    return nullptr;
+}
+
+std::exception* PSsaveBooks(){
+    try{
+        std::exception* err = saveBooks(booksRef, fileLocation);
+        if(err != nullptr){throw err;}
+    }catch(std::exception* err){
+        return err;
+    }
+    return nullptr;
+}
+
+std::exception* PSloadOriginal(){
+    try{
+        std::cout << "\nIch werde nun versuchen, unsere Datenbank wieder auf den Originalzustand zu setzen.\n";
+        std::exception* err = loadOrigin(fileLocationOriginal, fileLocation);
+        if(err != nullptr){
+            std::cout << "Es ist ein Fehler aufgetreten. Ein Moment bitte, ich versuche etwas anderes.\n";
+            //dieser Block kompensiert ein Problem, dass bei mir aufgetretem ist, wodurch verschiedene Compiler mit
+            //verschiedenen Dateipfaden klarkommen.
+            err = loadOrigin(fileLocationOriginalAlt, fileLocationAlt);
+            if(err == nullptr){
+                fileLocation = fileLocationAlt;
+                fileLocationOriginal = fileLocationOriginalAlt;
+            }else{
+                throw new std::runtime_error("Etwas ist bei der Synchronisierung mit der Hauptdatenbank schiefgegangen.\nEs tut mire leid\n");
+            }
+
+        }
+        err = PSloadBooks();
+        if(err != nullptr){throw err;}
+    }catch(std::runtime_error* err){
+        return err;
+    }
+    std::cout << "Die Bücher wurden mit der Hauptdatenbank synchronisiert.\n";
+    pauseForEnter();
+    return nullptr;
+}
+
+std::exception* PSstartup(){
+    try{
+        std::exception* err = PSloadBooks();
+        if(err != nullptr){
+            try{
+                std::cout << "Leider gab es ein Problem beim Laden der Buchliste.\n"<<
+                    "Möglicherweise existiert die Liste noch nicht.\n"<<
+                    "Möchten Sie die lokale Liste aus unserer Haupdatenbank anlegen?\n"<<
+                    "1: Ja\n2: Nein\n";
+                std::string input;
+                std::getline(std::cin, input);
+                int choice = std::stoi(input);
+                if(choice == 2){
+                    std::cout << "Wie Sie wünschen. Das Programm wird mit einer leeren Buchliste gestartet.\n"<<
+                        "Bitte beachten Sie, dass dies zu unerwartetem Verhalten führen kann, bzw. manche Funktionalitäten nicht ausführbar sein werden.\n"<<
+                        "Wilkommen in der Bibliothek.\n";
+                    booksRef = {};
+                    return nullptr;
+                }else{
+                    err = PSloadOriginal();
+                    if(err != nullptr){throw err;}
+                    std::cout << "Die Buchliste wurde aus der Hauptdatenbank übernommen.\nWilkommen in der Bibliothek!\n";
+                    pauseForEnter();
+                    return nullptr;
+                }
+            }catch(std::invalid_argument* ia){
+                return ia;
+            }catch (std::exception* er){
+                return err;
+            }
+        }
+        return nullptr;
+    }catch(std::exception* err){
+        return err;
+    }
+}
+
 //Wählt eins der Oben stehenden Programme aus. Widerholt sich, bis der User das Programm beenden müchte.
 void selectProgram(){
     bool exit = false;
+    std::exception* err = PSstartup();
+    if(err != nullptr){
+        std::cerr << "Es tut mir leid, leider ist ein fataler Fehler aufgetreten.\n"<<
+        "Bitte wenden Sie sich an Julius Clausen, um die Ursache des Problems zu finden.\n"<<
+        "Das Programm wird sich nun selbst beenden.";
+        pauseForEnter();
+        return;
+    }
     while(!exit){
         try{
             std::vector<std::string>& programsRef = programs;
             drawMainMenu(programsRef);
             std::string input;
             std::getline(std::cin, input);
+            if(input.length() == 0){
+                throw new std::invalid_argument("");
+            }
             int selection = std::stoi(input);
             switch (selection){
                 case 1:{
@@ -327,7 +386,7 @@ void selectProgram(){
                 }break;
                 case 2:{
                     clearScreen();
-                    std::exception* err = PSaddBook();
+                    err = PSaddBook();
                     if(err != nullptr){
                         throw err;
                     }
@@ -335,7 +394,7 @@ void selectProgram(){
 
                 case 3:{
                     clearScreen();
-                    std::exception* err = PSdeleteBook();
+                    err = PSdeleteBook();
                     if(err != nullptr){
                         throw err;
                     }
@@ -352,16 +411,24 @@ void selectProgram(){
                 }break;
                 case 5:{
                     clearScreen();
-                    std::exception* err = PSloadOriginal();
+                    err = PSloadOriginal();
                     if(err != nullptr){
                         throw err;
                     }
                 }break;
                 case 6:{
-                    std::exception* err = PSsort();
+                    err = PSsort();
                     if (err != nullptr){throw err;}
                 }break;
                 case 7:{
+                    err = PSloadBooks();
+                    if (err != nullptr){throw err;}
+                }break;
+                case 8:{
+                    err = PSsaveBooks();
+                    if (err != nullptr){throw err;}
+                }break;
+                case 9:{
                     clearScreen();
                     exitMessage();
                     exit = true;

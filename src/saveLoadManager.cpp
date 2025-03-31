@@ -41,6 +41,7 @@ std::exception* saveBooks(std::vector<struct book>& books, std::string fileLocat
     std::vector<std::string>& linesRef = lines;
     std::vector<struct book>::iterator it;
     try{
+        lines.push_back("Autor;Erscheinungsjahr;Titel;ISBN;Aktueller Preis");
         for(it = books.begin(); it != books.end(); it++){
             std::string line;
             std::string& lineRef = line;

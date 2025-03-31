@@ -1,6 +1,7 @@
 .vscode/
 src/build/
 src/output/
+/resources/buchliste_current.csv
 # Prerequisites
 *.d
 
