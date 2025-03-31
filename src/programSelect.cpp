@@ -276,7 +276,10 @@ std::exception* PSloadBooks(){
     try{
         booksRef.clear();
         std::exception* err = loadBooks(booksRef, fileLocation);
-        if(err != nullptr){throw err;}
+        if(err != nullptr){
+            err = loadBooks(booksRef, fileLocationAlt);
+            if(err != nullptr){throw err;}
+        }
     }catch(std::exception* err){
         return err;
     }
@@ -305,6 +308,7 @@ std::exception* PSloadOriginal(){
             if(err == nullptr){
                 fileLocation = fileLocationAlt;
                 fileLocationOriginal = fileLocationOriginalAlt;
+                pauseForEnter();
             }else{
                 throw new std::runtime_error("Etwas ist bei der Synchronisierung mit der Hauptdatenbank schiefgegangen.\nEs tut mire leid\n");
             }
@@ -336,6 +340,7 @@ std::exception* PSstartup(){
                     std::cout << "Wie Sie wünschen. Das Programm wird mit einer leeren Buchliste gestartet.\n"<<
                         "Bitte beachten Sie, dass dies zu unerwartetem Verhalten führen kann, bzw. manche Funktionalitäten nicht ausführbar sein werden.\n"<<
                         "Wilkommen in der Bibliothek.\n";
+                        pauseForEnter();
                     booksRef = {};
                     return nullptr;
                 }else{

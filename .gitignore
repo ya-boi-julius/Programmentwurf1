@@ -1,7 +1,7 @@
 .vscode/
 src/build/
 src/output/
-/resources/buchliste_current.csv
+resources/buchliste_current.csv
 # Prerequisites
 *.d
 
@@ -34,3 +34,4 @@ src/output/
 *.exe
 *.out
 *.app
+resources/buchliste_current.csv

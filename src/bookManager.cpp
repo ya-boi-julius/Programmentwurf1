@@ -213,7 +213,7 @@ std::exception* sortByAuthor(std::vector<struct book>& books, bool ascending){
     std::vector<struct book>::iterator it2;
     //Bubble Sort. Ineffizient, aber eignet sich für den Vergleich zwischen Namen
     try {
-        for(it = (books.begin() + 1); it != books.end(); it++){
+        for(it = (books.begin()); it != books.end(); it++){
             for(it2 = (it + 1); it2 != books.end(); it2++){
                 for (int i = 0; (i  < (*it).author.length()) && (i < (*it2).author.length()); i++){
                     if((*it).author[i] != (*it2).author[i]){
@@ -241,7 +241,7 @@ std::exception* sortByTitle(std::vector<struct book>& books, bool ascending){
     std::vector<struct book>::iterator it2;
     //Bubble Sort. Ineffizient, aber eignet sich für den Vergleich zwischen Namen
     try {
-        for(it = (books.begin() + 1); it != books.end(); it++){
+        for(it = (books.begin()); it != books.end(); it++){
             for(it2 = (it + 1); it2 != books.end(); it2++){
                 for (int i = 0; (i  < (*it).title.length()) && (i < (*it2).title.length()); i++){
                     if(std::tolower((*it).title[i]) != std::tolower((*it2).title[i])){
@@ -269,7 +269,7 @@ std::exception* sortByDate(std::vector<struct book> &books, bool ascending){
     std::vector<struct book>::iterator it;
     std::vector<struct book>::iterator it2;
     try{
-        for(it = (books.begin() + 1); it != books.end(); it++){
+        for(it = (books.begin()); it != books.end(); it++){
             for(it2 = (it + 1); it2 != books.end(); it2++){
                 struct book temp;
                 if (ascending == ((*it).time > (*it2).time)){//sortiert Zeiten fall gültige Zeiteinträge vorhanden sind.
