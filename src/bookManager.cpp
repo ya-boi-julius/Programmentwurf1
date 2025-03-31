@@ -66,13 +66,11 @@ std::exception* parseBook(std::vector<std::string> &line, struct book& thisBook)
                             tempstream >> std::get_time(&timestamp, "%d.%m.%Y" );    
                         }else if(thisBook.yearString.length() == 4){
                             tempstream >> std::get_time(&timestamp, "%Y" );
+                        }else{
+                            thisBook.yearString = "Unbekannt";
                         }
                         thisBook.timestamp = timestamp;
                         thisBook.time = std::mktime(&timestamp);
-                        if((thisBook.time == -1) && (thisBook.timestamp.tm_year != 0) && (thisBook.yearString.length() > 4)){//Dies verursacht theoretisch ein Falsch positives ergebnis wenn das Buch 1 sekunde vor 1900 veröffentlicht
-                            //wurde, das sollte aber kein Problem sein
-                            thisBook.yearString = "Unbekannt";
-                        }
                     }break;
                 case 2:
                     {
@@ -283,6 +281,11 @@ std::exception* sortByDate(std::vector<struct book> &books, bool ascending){
                         *it = *it2;
                         *it2 = temp;
                     }
+                }
+                if((*it).yearString == "Unbekannt" && (*it2).yearString != "Unbekannt"){
+                    temp = *it;
+                        *it = *it2;
+                        *it2 = temp;
                 }
             }
         }
