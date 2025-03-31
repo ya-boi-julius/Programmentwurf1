@@ -370,7 +370,7 @@ void selectProgram(){
     if(err != nullptr){
         std::cerr << "Es tut mir leid, leider ist ein fataler Fehler aufgetreten.\n"<<
         "Bitte wenden Sie sich an Julius Clausen, um die Ursache des Problems zu finden.\n"<<
-        "Das Programm wird sich nun selbst beenden.";
+        "Das Programm wird sich nun selbst beenden.\n";
         pauseForEnter();
         return;
     }
